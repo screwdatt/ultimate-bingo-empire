@@ -2,7 +2,7 @@ import json
 import random
 from channels.generic.websocket import AsyncWebsocketConsumer
 from asgiref.sync import async_to_sync
-from .models import Winner
+# from .models import Winner
 from .utils import generate_90ball_ticket, check_90ball_status
 from decimal import Decimal
 from bingo_project.settings import ROOM_CONFIG
