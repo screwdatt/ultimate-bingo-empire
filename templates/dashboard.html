@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% block content %}
+<h1 class="neon">BINGO EMPIRE DASHBOARD</h1>
+<p>Total Players: {{ total_players }} | Revenue: £{{ total_money }}</p>
+<table style="width:100%; border-collapse:collapse; color:#0f0;">
+    <tr><th>Room</th><th>Players</th><th>Revenue</th><th>Called</th><th>Actions</th></tr>
+    {% for room, data in rooms.items %}
+    <tr>
+        <td>{{ room|upper }}</td>
+        <td>{{ data.players }}</td>
+        <td>£{{ data.revenue }}</td>
+        <td>{{ data.called }}/90</td>
+        <td><a href="/room/{{ room }}/?type=90&pw={{ data.pw }}">Play</a> | <a href="/host/{{ room }}/?key={{ data.hostkey }}">Host</a></td>
+    </tr>
+    {% endfor %}
+</table>
+{% endblock %}
