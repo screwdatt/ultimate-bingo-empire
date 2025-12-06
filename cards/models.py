@@ -14,3 +14,4 @@ class Winner(models.Model):
 
     class Meta:
         ordering = ['-won_at']
+        app_label = 'cards'  # <-- This line is the key safety net
