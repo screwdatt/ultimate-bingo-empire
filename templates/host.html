@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% block content %}
+<h1 class="neon">HOST CONTROL – {{ room_name|title }}</h1>
+<button onclick="callNext()">CALL NEXT NUMBER</button>
+<button onclick="autoCall=!autoCall">AUTO CALL</button>
+<button onclick="resetGame()">RESET GAME</button>
+<div id="called-numbers"></div>
+<div id="players"></div>
+
+<script>
+const ws = new WebSocket('wss://' + location.host + '/ws/host/{{ room_name }}/?key={{ request.GET.key }}');
+let autoCall = false;
+
+ws.onmessage = (e) => {
+    const data = JSON.parse(e.data);
+    if (data.type === "host_state") {
+        document.getElementById("called-numbers").innerHTML = "Called: " + data.called_numbers.map(n => `<span class="floating-ball">${n}</span>`).join(" ");
+        document.getElementById("players").innerHTML = data.players_html;
+    }
+};
+
+function callNext() { ws.send(JSON.stringify({type:"call_number"})); }
+setInterval(() => { if (autoCall) callNext(); }, 6000);
+function resetGame() { if (confirm("Reset?")) ws.send(JSON.stringify({type:"reset_game"})); }
+</script>
+{% endblock %}
