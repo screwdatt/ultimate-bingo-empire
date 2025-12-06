@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% block content %}
+<h1 class="neon">HALL OF FAME</h1>
+{% for date, winners in daily.items %}
+<h2>{{ date|date:"l j F Y" }}</h2>
+<table style="width:100%; color:#0f0;">
+    <tr><th>Time</th><th>Winner</th><th>Prize</th><th>Amount</th></tr>
+    {% for w in winners %}
+    <tr>
+        <td>{{ w.won_at|time:"H:i" }}</td>
+        <td>{{ w.username }}</td>
+        <td>{{ w.prize_description }}</td>
+        <td>£{{ w.amount_gbp }}</td>
+    </tr>
+    {% endfor %}
+</table>
+{% endfor %}
+{% endblock %}
