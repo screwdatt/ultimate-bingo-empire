@@ -1,0 +1,23 @@
+<div style="position:fixed; top:10px; right:10px; background:rgba(0,0,0,0.8); color:#0f0; padding:15px; border:2px solid #0f0; border-radius:10px;">
+    <h3>LEADERBOARD</h3>
+    <ol id="lb-list"></ol>
+    <small>Called: <span id="lb-called">0</span>/90</small>
+</div>
+
+<script>
+setInterval(() => {
+    fetch('/api/status/{{ room_name }}/')
+        .then(r => r.json())
+        .then(d => {
+            document.getElementById('lb-called').textContent = d.called.length;
+            const list = document.getElementById('lb-list');
+            list.innerHTML = '';
+            d.leaderboard.forEach(p => {
+                const li = document.createElement('li');
+                li.textContent = `${p.name} → ${p.progress}`;
+                if (p.progress.includes('HOUSE')) li.style.color = '#ff0';
+                list.appendChild(li);
+            });
+        });
+}, 5000);
+</script>
