@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% block title %}Play Bingo{% endblock %}
+{% block content %}
+<div style="text-align:center; padding:50px; color:#0ff;">
+    <h1 class="neon" style="font-size:3em;">🎰 ULTIMATE BINGO EMPIRE 🎰</h1>
+    <p style="font-size:1.5em;">Join the Xmas2025 room — £5 entry</p>
+    <button onclick="pay()" style="padding:20px 40px; font-size:1.5em; background:#0f0; color:black; border:none; cursor:pointer;">
+        PLAY NOW £5 →
+    </button>
+    <script src="https://js.stripe.com/v3/"></script>
+    <script>
+        const stripe = Stripe("{{ STRIPE_PUBLISHABLE_KEY }}");
+        function pay() {
+            fetch("/create-checkout-session/", {
+                method: "POST",
+                headers: {"Content-Type": "application/json"},
+                body: JSON.stringify({room: "Xmas2025"})
+            }).then(r => r.json()).then(s => stripe.redirectToCheckout({sessionId: s.id}));
+        }
+    </script>
+</div>
+{% endblock %}
