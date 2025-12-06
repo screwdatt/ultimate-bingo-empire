@@ -1,0 +1,71 @@
+{% extends "base.html" %}
+{% block title %}Bingo Room{% endblock %}
+{% block content %}
+<h1 class="neon" style="text-align:center;">🎄 {{ room_name|title }} Bingo</h1>
+<div id="ticket" style="display:grid; grid-template-columns:repeat(9,1fr); gap:5px; max-width:600px; margin:20px auto;"></div>
+<button id="auto-daub-toggle">Auto-Daub: OFF</button>
+<div id="called-list" style="text-align:center; font-size:30px;"></div>
+{% include "leaderboard.html" %}
+
+<script>
+const socket = new WebSocket('wss://' + location.host + location.pathname);
+const username = prompt("Your name:") || "Player";
+let calledNumbers = [];
+let autoDaub = false;
+let ticket = [];
+
+socket.onopen = () => socket.send(JSON.stringify({type: "join", username}));
+
+socket.onmessage = (e) => {
+    const data = JSON.parse(e.data);
+    if (data.type === "player_joined") {
+        ticket = data.ticket;
+        renderTicket();
+    }
+    if (data.type === "number") {
+        calledNumbers.push(data.number);
+        document.getElementById("called-list").innerHTML += `<span class="floating-ball" style="display:inline-block; background:#0f0; color:black; border-radius:50%; width:50px; height:50px; line-height:50px; margin:5px;">${data.number}</span>`;
+        if (autoDaub) markNumber(data.number);
+    }
+    if (data.type === "win_confetti") confettiWin(data.win_type, data.winner === username);
+};
+
+function renderTicket() {
+    const grid = document.getElementById("ticket");
+    grid.innerHTML = "";
+    ticket.forEach((row, r) => row.forEach((num, c) => {
+        const cell = document.createElement("div");
+        cell.className = "cell";
+        cell.textContent = num || "";
+        cell.style.background = num ? "#00ffff" : "#111";
+        cell.style.padding = "15px";
+        cell.style.textAlign = "center";
+        cell.style.border = "1px solid #0f0";
+        cell.style.cursor = "pointer";
+        cell.onclick = () => {
+            if (num && calledNumbers.includes(num)) {
+                cell.classList.toggle("marked");
+                cell.style.background = cell.classList.contains("marked") ? "red" : "#00ffff";
+                socket.send(JSON.stringify({type: "mark_number", username, row: r, col: c}));
+            }
+        };
+        grid.appendChild(cell);
+    }));
+}
+
+document.getElementById("auto-daub-toggle").onclick = () => {
+    autoDaub = !autoDaub;
+    document.getElementById("auto-daub-toggle").textContent = autoDaub ? "Auto-Daub: ON" : "Auto-Daub: OFF";
+};
+
+function confettiWin(type, isMe) {
+    const count = isMe ? 500 : 200;
+    confetti({
+        particleCount: count,
+        spread: 120,
+        origin: { y: 0.6 },
+        colors: isMe ? ['#ff00ff', '#00ffff', '#ffff00'] : ['#ff0080', '#00ff80']
+    });
+}
+</script>
+{% endblock %}
