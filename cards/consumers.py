@@ -85,6 +85,8 @@ class BingoConsumer(AsyncWebsocketConsumer):
                 state["players"][username]["marked"][r][c] = True
                 win_type = check_90ball_status(state["players"][username]["marked"])
                 if win_type != "none":
+                    from .models import Winner
+                    
                     Winner.objects.create(
                         room=room_upper,
                         username=username,
